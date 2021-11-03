@@ -3,7 +3,7 @@
  * Framework for class initiation.
  */
 
-namespace NSukonny\NFramework;
+namespace Helproic;
 
 defined( 'ABSPATH' ) || exit;
 

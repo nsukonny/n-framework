@@ -13,7 +13,10 @@
     "autoload": {
         "psr-4": {
             "NSukonny\\NFramework\\": "src/"
-        }
+        },
+        "classmap": [
+            "src/"
+        ]
     },
     "authors": [
         {
