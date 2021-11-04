@@ -23,9 +23,17 @@ class Loader {
 	 * @since 1.0.0
 	 */
 	public function load_assets() {
-		echo 'called';
-		echo '<pre>' . print_r( self::$autoload_namespaces, true ) . '</pre>';
-		wp_die();
+
+		if ( ! function_exists( 'is_admin' ) ) {
+			return;
+		}
+
+		if ( is_admin() ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		} else {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		}
+
 	}
 
 	/**
@@ -33,21 +41,20 @@ class Loader {
 	 *
 	 * @param $namespace
 	 * @param $dir_path
-	 * @param $init_params
 	 *
 	 * @since 1.0.0
 	 */
-	public static function init_autoload( $namespace, $dir_path, $init_params ) {
+	public static function init_autoload( $namespace, $dir_path ) {
 
 		self::$autoload_namespaces[] = array(
 			'namespace' => $namespace,
 			'dirpath'   => $dir_path,
-			'params'    => $init_params,
 		); //TODO Test how it's working with two plugins in one website
 
 		spl_autoload_register( __CLASS__ . '::autoload' );
 
 		add_action( 'init', array( Loader::class, 'instance' ) );
+
 	}
 
 	/**
@@ -105,5 +112,70 @@ class Loader {
 		$namespaces = array_column( self::$autoload_namespaces, 'namespace' );
 
 		return in_array( $class_explode[0], $namespaces, true );
+	}
+
+	/**
+	 * Find and enqueue admin styles and scripts
+	 *
+	 * @since 1.0.0
+	 */
+	public function enqueue_admin_scripts() {
+
+		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
+		$css_file  = 'assets/css/admin.min.css';
+		$js_file   = 'assets/js/admin.min.js';
+
+		if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/' . $css_file ) ) {
+			wp_enqueue_style(
+				$namespace,
+				URL . $css_file,
+				array(),
+				VERSION
+			);
+		}
+
+		if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/' . $js_file ) ) {
+			wp_register_script(
+				$namespace,
+				URL . $js_file,
+				array( 'jquery' ),
+				VERSION
+			);
+
+			wp_enqueue_script( $namespace );
+		}
+
+	}
+
+	/**
+	 * Enqueue styles and scripts
+	 *
+	 * @since 1.0.0
+	 */
+	public function enqueue_scripts() {
+
+		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
+		$css_file  = URL . '/assets/css/styles.min.css';
+		$js_file   = URL . '/assets/js/styles.min.js';
+
+		if ( file_exists( $css_file ) ) {
+			wp_enqueue_style(
+				$namespace,
+				$css_file,
+				array(),
+				VERSION
+			);
+		}
+
+		if ( file_exists( $js_file ) ) {
+			wp_register_script(
+				$namespace,
+				$js_file,
+				array( 'jquery' ),
+				VERSION
+			);
+			wp_enqueue_script( $namespace );
+		}
+
 	}
 }
