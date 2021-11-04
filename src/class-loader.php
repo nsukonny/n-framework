@@ -7,7 +7,26 @@ namespace NSukonny\NFramework;
 
 class Loader {
 
+	use Singleton;
+
 	static $autoload_namespaces = [];
+
+	public function init() {
+
+		$this->load_assets();
+
+	}
+
+	/**
+	 * Find and load default assets
+	 *
+	 * @since 1.0.0
+	 */
+	public function load_assets() {
+		echo 'called';
+		echo '<pre>' . print_r( self::$autoload_namespaces, true ) . '</pre>';
+		wp_die();
+	}
 
 	/**
 	 * Init classes, assets and other
@@ -18,7 +37,7 @@ class Loader {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function init( $namespace, $dir_path, $init_params ) {
+	public static function init_autoload( $namespace, $dir_path, $init_params ) {
 
 		self::$autoload_namespaces[] = array(
 			'namespace' => $namespace,
@@ -28,6 +47,7 @@ class Loader {
 
 		spl_autoload_register( __CLASS__ . '::autoload' );
 
+		add_action( 'init', array( Loader::class, 'instance' ) );
 	}
 
 	/**
@@ -86,5 +106,4 @@ class Loader {
 
 		return in_array( $class_explode[0], $namespaces, true );
 	}
-
 }

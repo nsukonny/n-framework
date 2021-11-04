@@ -5,6 +5,8 @@
 
 namespace NSukonny\NFramework;
 
+use Exception;
+
 defined( 'ABSPATH' ) || exit;
 
 trait Singleton {
@@ -13,6 +15,7 @@ trait Singleton {
 	 * Clone method
 	 *
 	 * @return void
+	 *
 	 * @since  1.1.0
 	 */
 	protected function __clone() {
@@ -21,17 +24,19 @@ trait Singleton {
 	/**
 	 * Wakeup method
 	 *
-	 * @throws \Exception When used.
+	 * @throws Exception When used.
+	 *
 	 * @since 1.1.0
 	 */
 	protected function __wakeup() {
-		throw new \Exception( 'Cannot unserialize singleton' );
+		throw new Exception( 'Cannot unserialize singleton' );
 	}
 
 	/**
 	 * Gets the instance
 	 *
 	 * @return self
+	 *
 	 * @since  1.1.0
 	 */
 	final public static function instance() {
@@ -46,6 +51,8 @@ trait Singleton {
 
 	/**
 	 * The constructor
+	 *
+	 * @since 1.0.0
 	 */
 	final protected function __construct() {
 		$this->init();
@@ -53,6 +60,8 @@ trait Singleton {
 
 	/**
 	 * Initialize
+	 *
+	 * @since 1.0.0
 	 */
 	abstract public function init();
 }
