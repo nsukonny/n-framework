@@ -34,7 +34,6 @@ class Loader {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		}
 
-		$this->load_text_domain();
 		add_action( 'plugins_loaded', array( $this, 'load_text_domain' ) );
 
 	}
