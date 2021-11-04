@@ -157,8 +157,8 @@ class Loader {
 	public function enqueue_scripts() {
 
 		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
-		$css_file  = URL . '/assets/css/styles.min.css';
-		$js_file   = URL . '/assets/js/styles.min.js';
+		$css_file  = URL . '/assets/css/style.min.css';
+		$js_file   = URL . '/assets/js/script.min.js';
 
 		if ( file_exists( $css_file ) ) {
 			wp_enqueue_style(
