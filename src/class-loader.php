@@ -161,7 +161,6 @@ class Loader {
 		$js_file   = 'assets/js/script.min.js';
 
 		if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/' . $css_file ) ) {
-			echo 'enqueued';
 			wp_enqueue_style(
 				$namespace,
 				URL . $css_file,
@@ -178,24 +177,6 @@ class Loader {
 				VERSION
 			);
 			wp_enqueue_script( $namespace );
-		}
-
-	}
-
-	/**
-	 * Loads plugin text domain
-	 *
-	 * @since 1.0.0
-	 */
-	public function load_text_domain() {
-
-		$current_theme = wp_get_theme();
-		$namespace     = strtolower( self::$autoload_namespaces[0]['namespace'] );
-
-		if ( ! empty( $current_theme->stylesheet ) && file_exists( get_theme_root() . '/' . $current_theme->stylesheet . '/local_' . $namespace . '_lang' ) ) {
-			load_plugin_textdomain( $namespace, false, get_theme_root() . '/' . $current_theme->stylesheet . '/local_' . $namespace . '_lang' );
-		} else if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/languages' ) ) {
-			load_plugin_textdomain( $namespace, false, self::$autoload_namespaces[0]['dirpath'] . '/languages' );
 		}
 
 	}
