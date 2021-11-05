@@ -157,22 +157,23 @@ class Loader {
 	public function enqueue_scripts() {
 
 		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
-		$css_file  = URL . '/assets/css/style.min.css';
-		$js_file   = URL . '/assets/js/script.min.js';
+		$css_file  = 'assets/css/style.min.css';
+		$js_file   = 'assets/js/script.min.js';
 
-		if ( file_exists( $css_file ) ) {
+		if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/' . $css_file ) ) {
+			echo 'enqueued';
 			wp_enqueue_style(
 				$namespace,
-				$css_file,
+				URL . $css_file,
 				array(),
 				VERSION
 			);
 		}
 
-		if ( file_exists( $js_file ) ) {
+		if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/' . $js_file ) ) {
 			wp_register_script(
 				$namespace,
-				$js_file,
+				URL . $js_file,
 				array( 'jquery' ),
 				VERSION
 			);
