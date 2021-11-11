@@ -179,5 +179,27 @@ class Loader {
 			wp_enqueue_script( $namespace );
 		}
 
+		if ( defined( 'ENQUEUE' ) && ! empty( ENQUEUE['scripts'] ) ) {
+			$this->load_additional_scripts( ENQUEUE['scripts'] );
+		}
+
+	}
+
+	/**
+	 * @param array $scripts List of scripts for loading
+	 *
+	 * @since 1.0.0
+	 */
+	private function load_additional_scripts( $scripts ) {
+
+		foreach ( $scripts as $slug => $script ) {
+			wp_register_script(
+				$slug,
+				$script,
+				array( 'jquery' )
+			);
+			wp_enqueue_script( $slug );
+		}
+
 	}
 }
