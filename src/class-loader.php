@@ -179,9 +179,16 @@ class Loader {
 			wp_enqueue_script( $namespace );
 		}
 
-		if ( defined( 'ENQUEUE' ) && ! empty( ENQUEUE['scripts'] ) ) {
-			$this->load_additional_scripts( ENQUEUE['scripts'] );
+		if ( defined( 'ENQUEUE' ) ) {
+			if ( ! empty( ENQUEUE['styles'] ) ) {
+				$this->load_additional_styles( ENQUEUE['styles'] );
+			}
+
+			if ( ! empty( ENQUEUE['scripts'] ) ) {
+				$this->load_additional_scripts( ENQUEUE['scripts'] );
+			}
 		}
+
 
 	}
 
@@ -199,6 +206,22 @@ class Loader {
 				array( 'jquery' )
 			);
 			wp_enqueue_script( $slug );
+		}
+
+	}
+
+	/**
+	 * @param array $styles List of styles for loading
+	 *
+	 * @since 1.0.0
+	 */
+	private function load_additional_styles( $styles ) {
+
+		foreach ( $styles as $slug => $style ) {
+			wp_enqueue_style(
+				$slug,
+				$style
+			);
 		}
 
 	}
