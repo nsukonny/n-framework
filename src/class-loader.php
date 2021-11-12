@@ -124,27 +124,18 @@ class Loader {
 	public function enqueue_admin_scripts() {
 
 		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
-		$css_file  = 'assets/css/admin.min.css';
-		$js_file   = 'assets/js/admin.min.js';
 
-		if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/' . $css_file ) ) {
-			wp_enqueue_style(
-				$namespace,
-				URL . $css_file,
-				array(),
-				VERSION
-			);
-		}
+		$this->enqueue_style( $namespace, 'assets/css/admin.min.css' );
+		$this->enqueue_script( $namespace, 'assets/js/admin.min.js' );
 
-		if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/' . $js_file ) ) {
-			wp_register_script(
-				$namespace,
-				URL . $js_file,
-				array( 'jquery' ),
-				VERSION
-			);
+		if ( defined( 'ENQUEUE' ) ) {
+			if ( ! empty( ENQUEUE['admin_styles'] ) ) {
+				$this->load_additional_styles( ENQUEUE['admin_styles'] );
+			}
 
-			wp_enqueue_script( $namespace );
+			if ( ! empty( ENQUEUE['admin_scripts'] ) ) {
+				$this->load_additional_scripts( ENQUEUE['admin_scripts'] );
+			}
 		}
 
 	}
@@ -157,27 +148,9 @@ class Loader {
 	public function enqueue_scripts() {
 
 		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
-		$css_file  = 'assets/css/style.min.css';
-		$js_file   = 'assets/js/script.min.js';
 
-		if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/' . $css_file ) ) {
-			wp_enqueue_style(
-				$namespace,
-				URL . $css_file,
-				array(),
-				VERSION
-			);
-		}
-
-		if ( file_exists( self::$autoload_namespaces[0]['dirpath'] . '/' . $js_file ) ) {
-			wp_register_script(
-				$namespace,
-				URL . $js_file,
-				array( 'jquery' ),
-				VERSION
-			);
-			wp_enqueue_script( $namespace );
-		}
+		$this->enqueue_style( $namespace, 'assets/css/style.min.css' );
+		$this->enqueue_script( $namespace, 'assets/js/style.min.js' );
 
 		if ( defined( 'ENQUEUE' ) ) {
 			if ( ! empty( ENQUEUE['styles'] ) ) {
@@ -189,6 +162,49 @@ class Loader {
 			}
 		}
 
+	}
+
+	/**
+	 * Check js script and add it to system
+	 *
+	 * @param string $slug Slug name for enqueue.
+	 * @param string $css_file Path to js file from plugin folder.
+	 *
+	 * @since 1.0.0
+	 */
+	private function enqueue_style( string $slug, string $css_file ) {
+
+		if ( file_exists( PATH . '/' . $css_file ) ) {
+			wp_enqueue_style(
+				$slug,
+				URL . $css_file,
+				array(),
+				VERSION
+			);
+		}
+
+	}
+
+	/**
+	 * Check js script and add it to system
+	 *
+	 * @param string $slug Slug name for enqueue.
+	 * @param string $js_file Path to js file from plugin folder.
+	 *
+	 * @since 1.0.0
+	 */
+	private function enqueue_script( string $slug, string $js_file ) {
+
+		if ( file_exists( PATH . '/' . $js_file ) ) {
+			wp_register_script(
+				$slug,
+				URL . $js_file,
+				array( 'jquery' ),
+				VERSION
+			);
+
+			wp_enqueue_script( $slug );
+		}
 
 	}
 
@@ -197,7 +213,7 @@ class Loader {
 	 *
 	 * @since 1.0.0
 	 */
-	private function load_additional_scripts( $scripts ) {
+	private function load_additional_scripts( array $scripts ) {
 
 		foreach ( $scripts as $slug => $script ) {
 			wp_register_script(
@@ -215,7 +231,7 @@ class Loader {
 	 *
 	 * @since 1.0.0
 	 */
-	private function load_additional_styles( $styles ) {
+	private function load_additional_styles( array $styles ) {
 
 		foreach ( $styles as $slug => $style ) {
 			wp_enqueue_style(
