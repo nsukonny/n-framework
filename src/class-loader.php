@@ -29,9 +29,9 @@ class Loader {
 		}
 
 		if ( is_admin() ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 16 );
 		} else {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 16 );
 		}
 
 		add_action( 'plugins_loaded', array( $this, 'load_text_domain' ) );
