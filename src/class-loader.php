@@ -123,11 +123,6 @@ class Loader {
 	 */
 	public function enqueue_admin_scripts() {
 
-		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
-
-		$this->enqueue_style( $namespace, 'assets/css/admin.min.css' );
-		$this->enqueue_script( $namespace, 'assets/js/admin.min.js' );
-
 		if ( defined( 'ENQUEUE' ) ) {
 			if ( ! empty( ENQUEUE['admin_styles'] ) ) {
 				$this->load_additional_styles( ENQUEUE['admin_styles'] );
@@ -138,6 +133,11 @@ class Loader {
 			}
 		}
 
+		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
+
+		$this->enqueue_style( $namespace, 'assets/css/admin.min.css' );
+		$this->enqueue_script( $namespace, 'assets/js/admin.min.js' );
+
 	}
 
 	/**
@@ -146,11 +146,6 @@ class Loader {
 	 * @since 1.0.0
 	 */
 	public function enqueue_scripts() {
-
-		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
-
-		$this->enqueue_style( $namespace, 'assets/css/style.min.css' );
-		$this->enqueue_script( $namespace, 'assets/js/style.min.js' );
 
 		if ( defined( 'ENQUEUE' ) ) {
 			if ( ! empty( ENQUEUE['styles'] ) ) {
@@ -161,6 +156,11 @@ class Loader {
 				$this->load_additional_scripts( ENQUEUE['scripts'] );
 			}
 		}
+
+		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
+
+		$this->enqueue_style( $namespace, 'assets/css/style.min.css' );
+		$this->enqueue_script( $namespace, 'assets/js/style.min.js' );
 
 	}
 
