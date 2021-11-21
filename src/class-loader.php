@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper for load includes, classes and assets
+ * Loader for includes, classes and assets
  */
 
 namespace NSukonny\NFramework;
@@ -135,8 +135,15 @@ class Loader {
 
 		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
 
-		$this->enqueue_style( $namespace, 'assets/css/admin.min.css' );
-		$this->enqueue_script( $namespace, 'assets/js/admin.min.js' );
+		$enqueue_style_min = $this->enqueue_style( $namespace, 'assets/css/admin.min.css' );
+		if ( ! $enqueue_style_min ) {
+			$this->enqueue_style( $namespace, 'assets/css/admin.css' );
+		}
+
+		$enqueue_script_min = $this->enqueue_script( $namespace, 'assets/js/admin.min.js' );
+		if ( ! $enqueue_script_min ) {
+			$this->enqueue_script( $namespace, 'assets/js/admin.js' );
+		}
 
 	}
 
@@ -159,8 +166,15 @@ class Loader {
 
 		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
 
-		$this->enqueue_style( $namespace, 'assets/css/style.min.css' );
-		$this->enqueue_script( $namespace, 'assets/js/style.min.js' );
+		$enqueue_style_min = $this->enqueue_style( $namespace, 'assets/css/style.min.css' );
+		if ( ! $enqueue_style_min ) {
+			$this->enqueue_style( $namespace, 'assets/css/style.css' );
+		}
+
+		$enqueue_script_min = $this->enqueue_script( $namespace, 'assets/js/script.min.js' );
+		if ( ! $enqueue_script_min ) {
+			$this->enqueue_script( $namespace, 'assets/js/script.js' );
+		}
 
 	}
 
@@ -170,9 +184,11 @@ class Loader {
 	 * @param string $slug Slug name for enqueue.
 	 * @param string $css_file Path to js file from plugin folder.
 	 *
+	 * @return bool
+	 *
 	 * @since 1.0.0
 	 */
-	private function enqueue_style( string $slug, string $css_file ) {
+	private function enqueue_style( string $slug, string $css_file ): bool {
 
 		if ( file_exists( PATH . '/' . $css_file ) ) {
 			wp_enqueue_style(
@@ -181,8 +197,11 @@ class Loader {
 				array(),
 				VERSION
 			);
+
+			return true;
 		}
 
+		return false;
 	}
 
 	/**
@@ -191,9 +210,11 @@ class Loader {
 	 * @param string $slug Slug name for enqueue.
 	 * @param string $js_file Path to js file from plugin folder.
 	 *
+	 * @return bool
+	 *
 	 * @since 1.0.0
 	 */
-	private function enqueue_script( string $slug, string $js_file ) {
+	private function enqueue_script( string $slug, string $js_file ): bool {
 
 		if ( file_exists( PATH . '/' . $js_file ) ) {
 			wp_register_script(
@@ -204,8 +225,11 @@ class Loader {
 			);
 
 			wp_enqueue_script( $slug );
+
+			return true;
 		}
 
+		return false;
 	}
 
 	/**
