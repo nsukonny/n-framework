@@ -15,26 +15,9 @@ class Loader {
 
 		$this->load_assets();
 
-	}
-
-	/**
-	 * Find and load default assets
-	 *
-	 * @since 1.0.0
-	 */
-	public function load_assets() {
-
-		if ( ! function_exists( 'is_admin' ) ) {
-			return;
+		if ( defined( 'FEATURES' ) && is_array( FEATURES ) ) {
+			$this->load_features();
 		}
-
-		if ( is_admin() ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 16 );
-		} else {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 16 );
-		}
-
-		add_action( 'plugins_loaded', array( $this, 'load_text_domain' ) );
 
 	}
 
@@ -135,13 +118,20 @@ class Loader {
 
 		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
 
-		$enqueue_style_min = $this->enqueue_style( $namespace, 'assets/css/admin.min.css' );
-		if ( ! $enqueue_style_min ) {
+		if ( defined( 'FEATURES' ) && ! empty( FEATURES ) && is_array( FEATURES ) ) {
+			$enqueue = $this->enqueue_script( 'n-framework', 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js' );
+			if ( ! $enqueue ) {
+				$this->enqueue_script( 'n-framework', 'vendor/nsukonny/n-framework/src/assets/js/n-framework.js' );
+			}
+		}
+
+		$enqueue = $this->enqueue_style( $namespace, 'assets/css/admin.min.css' );
+		if ( ! $enqueue ) {
 			$this->enqueue_style( $namespace, 'assets/css/admin.css' );
 		}
 
-		$enqueue_script_min = $this->enqueue_script( $namespace, 'assets/js/admin.min.js' );
-		if ( ! $enqueue_script_min ) {
+		$enqueue = $this->enqueue_script( $namespace, 'assets/js/admin.min.js' );
+		if ( ! $enqueue ) {
 			$this->enqueue_script( $namespace, 'assets/js/admin.js' );
 		}
 
@@ -166,14 +156,68 @@ class Loader {
 
 		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
 
-		$enqueue_style_min = $this->enqueue_style( $namespace, 'assets/css/style.min.css' );
-		if ( ! $enqueue_style_min ) {
+		if ( define( 'FEATURES' ) && ! empty( FEATURES ) && is_array( FEATURES ) ) {
+			$enqueue = $this->enqueue_script( $namespace, 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js' );
+			if ( ! $enqueue ) {
+				$this->enqueue_script( $namespace, 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js' );
+			}
+
+			foreach ( FEATURES as $feature ) {
+				$enqueue = $this->enqueue_style( $namespace, 'vendor/nsukonny/n-framework/src/assets/css/' . $feature . '.min.css' );
+				if ( ! $enqueue ) {
+					$this->enqueue_style( $namespace, 'vendor/nsukonny/n-framework/src/assets/css/' . $feature . '.css' );
+				}
+			}
+		}
+
+		$enqueue = $this->enqueue_style( $namespace, 'assets/css/style.min.css' );
+		if ( ! $enqueue ) {
 			$this->enqueue_style( $namespace, 'assets/css/style.css' );
 		}
 
-		$enqueue_script_min = $this->enqueue_script( $namespace, 'assets/js/script.min.js' );
-		if ( ! $enqueue_script_min ) {
+		$enqueue = $this->enqueue_script( $namespace, 'assets/js/script.min.js' );
+		if ( ! $enqueue ) {
 			$this->enqueue_script( $namespace, 'assets/js/script.js' );
+		}
+
+	}
+
+	/**
+	 * Find and load default assets
+	 *
+	 * @since 1.0.0
+	 */
+	private function load_assets() {
+
+		if ( ! function_exists( 'is_admin' ) ) {
+			return;
+		}
+
+		if ( is_admin() ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 16 );
+		} else {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 16 );
+		}
+
+		add_action( 'plugins_loaded', array( $this, 'load_text_domain' ) );
+
+	}
+
+	/**
+	 * Load requested features
+	 *
+	 * @since 1.0.0
+	 */
+	private function load_features() {
+
+		foreach ( FEATURES as $feature ) {
+			$filename = __DIR__ . '/features/class-' . $feature . '.php';
+
+			if ( file_exists( $filename ) ) {
+				require_once $filename;
+
+				return;
+			}
 		}
 
 	}
@@ -188,7 +232,7 @@ class Loader {
 	 *
 	 * @since 1.0.0
 	 */
-	private function enqueue_style( string $slug, string $css_file ): bool {
+	public function enqueue_style( string $slug, string $css_file ): bool {
 
 		if ( file_exists( PATH . '/' . $css_file ) ) {
 			wp_enqueue_style(
@@ -214,7 +258,7 @@ class Loader {
 	 *
 	 * @since 1.0.0
 	 */
-	private function enqueue_script( string $slug, string $js_file ): bool {
+	public function enqueue_script( string $slug, string $js_file ): bool {
 
 		if ( file_exists( PATH . '/' . $js_file ) ) {
 			wp_register_script(
