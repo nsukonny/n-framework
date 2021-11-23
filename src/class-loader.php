@@ -156,7 +156,7 @@ class Loader {
 
 		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
 
-		if ( define( 'FEATURES' ) && ! empty( FEATURES ) && is_array( FEATURES ) ) {
+		if ( defined( 'FEATURES' ) && ! empty( FEATURES ) && is_array( FEATURES ) ) {
 			$enqueue = $this->enqueue_script( $namespace, 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js' );
 			if ( ! $enqueue ) {
 				$this->enqueue_script( $namespace, 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js' );

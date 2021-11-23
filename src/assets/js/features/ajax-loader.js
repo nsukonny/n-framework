@@ -67,6 +67,7 @@
                                 targets = $('.' + input.data('target'));
 
                             input.val(response.data.url);
+                            input.trigger('change');
 
                             targets.each(function () {
                                 let target = $(this);
