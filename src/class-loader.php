@@ -34,7 +34,7 @@ class Loader {
 		self::$autoload_namespaces[] = array(
 			'namespace' => $namespace,
 			'dirpath'   => $dir_path,
-		); //TODO Test how it's working with two plugins in one website
+		);
 
 		spl_autoload_register( __CLASS__ . '::autoload' );
 
@@ -106,33 +106,34 @@ class Loader {
 	 */
 	public function enqueue_admin_scripts() {
 
-		if ( defined( 'ENQUEUE' ) ) {
-			if ( ! empty( ENQUEUE['admin_styles'] ) ) {
-				$this->load_additional_styles( ENQUEUE['admin_styles'] );
+		if ( count( self::$autoload_namespaces ) ) {
+			foreach ( self::$autoload_namespaces as $autoload_namespace ) {
+
+				$namespace       = $autoload_namespace['namespace'];
+				$lower_namespace = strtolower( $namespace );
+
+				if ( defined( $namespace . '\ENQUEUE' ) ) {
+					if ( ! empty( constant( $namespace . '\ENQUEUE' )['admin_styles'] ) ) {
+						$this->load_additional_styles( constant( $namespace . '\ENQUEUE' )['admin_styles'] );
+					}
+
+					if ( ! empty( constant( $namespace . '\ENQUEUE' )['admin_scripts'] ) ) {
+						$this->load_additional_scripts( constant( $namespace . '\ENQUEUE' )['admin_scripts'] );
+					}
+				}
+
+				$this->enqueue_features( $namespace, $lower_namespace );
+
+				$enqueue = $this->enqueue_style( $lower_namespace, 'assets/css/admin.min.css', $namespace );
+				if ( ! $enqueue ) {
+					$this->enqueue_style( $lower_namespace, 'assets/css/admin.css', $namespace );
+				}
+
+				$enqueue = $this->enqueue_script( $lower_namespace, 'assets/js/admin.min.js', $namespace );
+				if ( ! $enqueue ) {
+					$this->enqueue_script( $lower_namespace, 'assets/js/admin.js', $namespace );
+				}
 			}
-
-			if ( ! empty( ENQUEUE['admin_scripts'] ) ) {
-				$this->load_additional_scripts( ENQUEUE['admin_scripts'] );
-			}
-		}
-
-		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
-
-		if ( defined( 'FEATURES' ) && ! empty( FEATURES ) && is_array( FEATURES ) ) {
-			$enqueue = $this->enqueue_script( 'n-framework', 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js' );
-			if ( ! $enqueue ) {
-				$this->enqueue_script( 'n-framework', 'vendor/nsukonny/n-framework/src/assets/js/n-framework.js' );
-			}
-		}
-
-		$enqueue = $this->enqueue_style( $namespace, 'assets/css/admin.min.css' );
-		if ( ! $enqueue ) {
-			$this->enqueue_style( $namespace, 'assets/css/admin.css' );
-		}
-
-		$enqueue = $this->enqueue_script( $namespace, 'assets/js/admin.min.js' );
-		if ( ! $enqueue ) {
-			$this->enqueue_script( $namespace, 'assets/js/admin.js' );
 		}
 
 	}
@@ -144,40 +145,33 @@ class Loader {
 	 */
 	public function enqueue_scripts() {
 
-		if ( defined( 'ENQUEUE' ) ) {
-			if ( ! empty( ENQUEUE['styles'] ) ) {
-				$this->load_additional_styles( ENQUEUE['styles'] );
-			}
+		if ( count( self::$autoload_namespaces ) ) {
+			foreach ( self::$autoload_namespaces as $autoload_namespace ) {
 
-			if ( ! empty( ENQUEUE['scripts'] ) ) {
-				$this->load_additional_scripts( ENQUEUE['scripts'] );
-			}
-		}
+				$namespace       = $autoload_namespace['namespace'];
+				$lower_namespace = strtolower( $namespace );
 
-		$namespace = strtolower( self::$autoload_namespaces[0]['namespace'] );
+				if ( defined( $namespace . '\ENQUEUE' ) ) {
+					if ( ! empty( constant( $namespace . '\ENQUEUE' )['styles'] ) ) {
+						$this->load_additional_styles( constant( $namespace . '\ENQUEUE' )['styles'] );
+					}
 
-		if ( defined( 'FEATURES' ) && ! empty( FEATURES ) && is_array( FEATURES ) ) {
-			$enqueue = $this->enqueue_script( $namespace, 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js' );
-			if ( ! $enqueue ) {
-				$this->enqueue_script( $namespace, 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js' );
-			}
+					if ( ! empty( constant( $namespace . '\ENQUEUE' )['scripts'] ) ) {
+						$this->load_additional_scripts( constant( $namespace . '\ENQUEUE' )['scripts'] );
+					}
+				}
+				$this->enqueue_features( $namespace, $lower_namespace );
 
-			foreach ( FEATURES as $feature ) {
-				$enqueue = $this->enqueue_style( $namespace, 'vendor/nsukonny/n-framework/src/assets/css/' . $feature . '.min.css' );
+				$enqueue = $this->enqueue_style( $lower_namespace, 'assets/css/style.min.css', $namespace );
 				if ( ! $enqueue ) {
-					$this->enqueue_style( $namespace, 'vendor/nsukonny/n-framework/src/assets/css/' . $feature . '.css' );
+					$this->enqueue_style( $lower_namespace, 'assets/css/style.css', $namespace );
+				}
+
+				$enqueue = $this->enqueue_script( $lower_namespace, 'assets/js/script.min.js', $namespace );
+				if ( ! $enqueue ) {
+					$this->enqueue_script( $lower_namespace, 'assets/js/script.js', $namespace );
 				}
 			}
-		}
-
-		$enqueue = $this->enqueue_style( $namespace, 'assets/css/style.min.css' );
-		if ( ! $enqueue ) {
-			$this->enqueue_style( $namespace, 'assets/css/style.css' );
-		}
-
-		$enqueue = $this->enqueue_script( $namespace, 'assets/js/script.min.js' );
-		if ( ! $enqueue ) {
-			$this->enqueue_script( $namespace, 'assets/js/script.js' );
 		}
 
 	}
@@ -227,19 +221,20 @@ class Loader {
 	 *
 	 * @param string $slug Slug name for enqueue.
 	 * @param string $css_file Path to js file from plugin folder.
+	 * @param string $namespace Namespace for working PATH and other defined variables
 	 *
 	 * @return bool
 	 *
 	 * @since 1.0.0
 	 */
-	public function enqueue_style( string $slug, string $css_file ): bool {
+	public function enqueue_style( string $slug, string $css_file, string $namespace = '' ): bool {
 
-		if ( file_exists( PATH . '/' . $css_file ) ) {
+		if ( file_exists( constant( $namespace . '\PATH' ) . $css_file ) ) {
 			wp_enqueue_style(
 				$slug,
-				URL . $css_file,
+				constant( $namespace . '\URL' ) . $css_file,
 				array(),
-				VERSION
+				constant( $namespace . '\VERSION' )
 			);
 
 			return true;
@@ -253,19 +248,20 @@ class Loader {
 	 *
 	 * @param string $slug Slug name for enqueue.
 	 * @param string $js_file Path to js file from plugin folder.
+	 * @param string $namespace Namespace for understanding for what plugin we load this files
 	 *
 	 * @return bool
 	 *
 	 * @since 1.0.0
 	 */
-	public function enqueue_script( string $slug, string $js_file ): bool {
+	public function enqueue_script( string $slug, string $js_file, string $namespace = '' ): bool {
 
-		if ( file_exists( PATH . '/' . $js_file ) ) {
+		if ( file_exists( constant( $namespace . '\PATH' ) . $js_file ) ) {
 			wp_register_script(
 				$slug,
-				URL . $js_file,
+				constant( $namespace . '\URL' ) . $js_file,
 				array( 'jquery' ),
-				VERSION
+				constant( $namespace . '\VERSION' )
 			);
 
 			wp_enqueue_script( $slug );
@@ -308,5 +304,31 @@ class Loader {
 			);
 		}
 
+	}
+
+	/**
+	 * Load additional libraries from the Framework
+	 *
+	 * @param $namespace
+	 * @param $lower_namespace
+	 */
+	public function enqueue_features( $namespace, $lower_namespace ) {
+
+		if ( defined( $namespace . '\FEATURES' )
+		     && ! empty( constant( $namespace . '\FEATURES' ) )
+		     && is_array( constant( $namespace . '\FEATURES' ) ) ) {
+
+			$enqueue = $this->enqueue_script( 'n-framework', 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js', $namespace );
+			if ( ! $enqueue ) {
+				$this->enqueue_script( 'n-framework', 'vendor/nsukonny/n-framework/src/assets/js/n-framework.min.js', $namespace );
+			}
+
+			foreach ( constant( $namespace . '\FEATURES' ) as $feature ) {
+				$enqueue = $this->enqueue_style( $lower_namespace, 'vendor/nsukonny/n-framework/src/assets/css/' . $feature . '.min.css', $namespace );
+				if ( ! $enqueue ) {
+					$this->enqueue_style( $lower_namespace, 'vendor/nsukonny/n-framework/src/assets/css/' . $feature . '.css', $namespace );
+				}
+			}
+		}
 	}
 }
